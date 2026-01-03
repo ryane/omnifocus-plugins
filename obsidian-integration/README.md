@@ -37,12 +37,23 @@ If you use the **Templater** plugin, you must **disable it** for the folder wher
 
 ## Installation
 
-1. Copy `of-obsidian-open-or-create.omnifocusjs` to your OmniFocus plugins directory:
-   ```
-   ~/Library/Containers/com.omnigroup.OmniFocus4/Data/Library/Application Support/Plug-Ins/
-   ```
+### Quick Install
 
-2. The plugin will appear in OmniFocus's Automation menu
+From the repository root, run:
+```bash
+just install obsidian-integration
+```
+
+This will copy the plugin to your OmniFocus plugins directory. Restart OmniFocus or refresh plugins (Automation > Configure Plugins).
+
+### Manual Install
+
+Copy `of-obsidian-open-or-create.omnifocusjs` to your OmniFocus plugins directory:
+```bash
+cp of-obsidian-open-or-create.omnifocusjs ~/Library/Containers/com.omnigroup.OmniFocus4/Data/Library/Application\ Support/Plug-Ins/
+```
+
+The plugin will appear in OmniFocus's Automation menu after reloading.
 
 ## Configuration
 
@@ -106,6 +117,22 @@ Your original OmniFocus note content appears here
 ### Links Break After Renaming
 - Verify Advanced URI plugin is installed
 - Check that "UID field name" is set to `id` in Advanced URI settings
+
+## Development
+
+### Workflow
+
+1. **Edit** the plugin in this directory
+2. **Install** from repo root: `just install obsidian-integration`
+3. **Reload** plugins in OmniFocus (Automation > Configure Plugins, or restart)
+4. **Test** your changes
+
+Note: OmniFocus does not support symlinks in the plugins directory, so changes must be copied via the justfile tasks.
+
+### Debugging
+
+- Use `console.log()` statements in the code
+- View output in OmniFocus's plugin console (Automation > Configure Plugins > [Plugin Name] > Console)
 
 ## Version History
 

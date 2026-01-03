@@ -1,0 +1,261 @@
+/*{
+	"type": "action",
+	"targets": ["omnifocus"],
+	"author": "Ryan Eschinger",
+	"identifier": "com.omni-automation.of.obsidian-open-or-create",
+	"version": "6.0",
+	"description": "Opens existing Obsidian note if one exists for the task/project (searching by ID using Local REST API), otherwise creates it with 'id', 'created', 'action', and 'tags' in frontmatter, and includes OmniFocus note content as body. Uses clean, readable filenames. Requires Obsidian Local REST API plugin (with HTTP mode enabled on port 27123) and OmniFocus 4. IMPORTANT: Disable Templater for the folder where these notes are stored.",
+	"label": "Open/Create in Obsidian",
+	"shortLabel": "Open/Create in Obsidian",
+	"paletteLabel": "Open/Create in Obsidian",
+	"image": "note.text.badge.plus"
+}*/
+(() => {
+	const preferences = new Preferences()
+
+	const action = new PlugIn.Action(async function(selection, sender){
+		try {
+			if (app.controlKeyDown){
+				var errorID = "A"
+
+				vaultTitle = preferences.readString("vaultTitle")
+				var vaultTitleInput = new Form.Field.String(
+					"vaultTitle",
+					"Vault name",
+					vaultTitle,
+					null
+				)
+
+				apiKey = preferences.readString("apiKey")
+				var apiKeyInput = new Form.Field.String(
+					"apiKey",
+					"Local REST API key",
+					apiKey,
+					null
+				)
+
+				apiUrl = preferences.readString("apiUrl")
+				if(!apiUrl){apiUrl = "http://127.0.0.1:27123"}
+				var apiUrlInput = new Form.Field.String(
+					"apiUrl",
+					"Local REST API URL",
+					apiUrl,
+					null
+				)
+
+				shouldIncludeTagsValue = preferences.readBoolean("shouldIncludeTags")
+				var includeTagsCheckbox = new Form.Field.Checkbox(
+					"shouldIncludeTags",
+					"Include OmniFocus tags with note",
+					shouldIncludeTagsValue
+				)
+
+				folderPathValue = preferences.readString("folderPath")
+				if(!folderPathValue){folderPathValue = ""}
+				var folderPathInput = new Form.Field.String(
+					"folderPath",
+					"Folder path (leave empty for root)",
+					folderPathValue,
+					null
+				)
+
+				inputForm = new Form()
+				inputForm.addField(vaultTitleInput)
+				inputForm.addField(apiKeyInput)
+				inputForm.addField(apiUrlInput)
+				inputForm.addField(folderPathInput)
+				inputForm.addField(includeTagsCheckbox)
+				formPrompt = "Configure Obsidian integration:\n(Requires Local REST API plugin with HTTP mode enabled)"
+				formObject = await inputForm.show(formPrompt,"Continue")
+
+				preferences.write("vaultTitle", formObject.values["vaultTitle"])
+				preferences.write("apiKey", formObject.values["apiKey"])
+				preferences.write("apiUrl", formObject.values["apiUrl"])
+				preferences.write("folderPath", formObject.values["folderPath"])
+				preferences.write("shouldIncludeTags", formObject.values["shouldIncludeTags"])
+			} else {
+				var errorID = "B"
+
+				// Get preferences
+				var vaultTitle = preferences.readString("vaultTitle")
+				if(!vaultTitle || vaultTitle === ""){
+					throw {
+						name: "Undeclared Vault Preference",
+						message: "A default Obsidian vault has not been indicated.\n\nRun this plug-in again while holding down the Control key to configure.\n\nNote: This plugin requires the Obsidian Local REST API plugin with HTTP mode enabled."
+					}
+				}
+
+				var apiKey = preferences.readString("apiKey")
+				if(!apiKey || apiKey === ""){
+					throw {
+						name: "Undeclared API Key",
+						message: "The Obsidian Local REST API key has not been set.\n\nRun this plug-in again while holding down the Control key to configure.\n\nYou can find the API key in Obsidian > Settings > Local REST API."
+					}
+				}
+
+				var apiUrl = preferences.readString("apiUrl")
+				if(!apiUrl){apiUrl = "http://127.0.0.1:27123"}
+
+				var folderPath = preferences.readString("folderPath")
+				if(!folderPath){folderPath = ""}
+
+				var shouldIncludeTags = preferences.readBoolean("shouldIncludeTags")
+				if(!shouldIncludeTags){shouldIncludeTags = false}
+
+				// Get item details
+				item = selection.databaseObjects[0]
+				itemID = item.id.primaryKey
+				itemLink = `omnifocus:///task/${itemID}`
+				itemTitle = item.name
+
+				// Get note content (OmniFocus v4)
+				var omniFocusNoteContent = ""
+				if(item.noteText && item.noteText.string.trim().length > 0){
+					omniFocusNoteContent = item.noteText.string
+				}
+
+				console.log("Task:", itemTitle)
+				console.log("Item ID:", itemID)
+				console.log("API URL:", apiUrl)
+
+				// Search for existing note using Local REST API
+				console.log("Creating search request...")
+				var request = new URL.FetchRequest()
+				request.url = URL.fromString(apiUrl + "/search/")
+				request.method = "POST"
+				request.headers = {
+					"Authorization": "Bearer " + apiKey,
+					"Content-Type": "application/vnd.olrapi.dataview.dql+txt"
+				}
+				request.bodyString = `TABLE file.path FROM "" WHERE id = "${itemID}"`
+
+				console.log("Sending search request...")
+				var searchResponse = await request.fetch()
+
+				console.log("Search completed, status:", searchResponse.statusCode)
+
+				// Parse search results
+				var resultText = searchResponse.bodyString
+				console.log("Search result:", resultText)
+
+				var existingFilePath = null
+
+				try {
+					var resultJSON = JSON.parse(resultText)
+					// Check if we have results
+					// Result format: [{"filename": "...", "result": {"file.path": "..."}}]
+					if(Array.isArray(resultJSON) && resultJSON.length > 0){
+						var firstResult = resultJSON[0]
+						if(firstResult.result && firstResult.result["file.path"]){
+							existingFilePath = firstResult.result["file.path"]
+							console.log("Found existing note at:", existingFilePath)
+						}
+					}
+				} catch(parseErr) {
+					console.log("Could not parse search results:", parseErr.message)
+				}
+
+				if(existingFilePath){
+					// Open existing note in new tab (unless already open)
+					var encodedVaultTitle = encodeURIComponent(vaultTitle)
+					var encodedItemID = encodeURIComponent(itemID)
+					var openLink = `obsidian://advanced-uri?vault=${encodedVaultTitle}&uid=${encodedItemID}&newpane=true`
+
+					console.log("Opening existing note")
+					console.log("Open link:", openLink)
+
+					URL.fromString(openLink).open()
+				} else {
+					// No existing note - create new one
+					console.log("No existing note found, creating new one")
+
+					// Build filepath using clean title
+					var cleanTitle = itemTitle.replace(/[\\/:*?"<>|]/g, '-')
+					var fileName = `${cleanTitle}.md`
+					var filePath = folderPath ? `${folderPath}/${fileName}` : fileName
+
+					// Get current date in YYYY-MM-DD format
+					var today = new Date()
+					var createdDate = today.getFullYear() + '-' +
+						String(today.getMonth() + 1).padStart(2, '0') + '-' +
+						String(today.getDate()).padStart(2, '0')
+
+					// Build full content with frontmatter
+					var frontmatterLines = [`---`, `id: ${itemID}`, `created: ${createdDate}`, `action: ${itemLink}`]
+					if(shouldIncludeTags && item.tags.length > 0){
+						tagTitles = item.tags.map(tag => tag.name)
+						tagArray = JSON.stringify(tagTitles)
+						frontmatterLines.push(`tags: ${tagArray}`)
+					}
+					frontmatterLines.push(`---`)
+					var noteContent = frontmatterLines.join("\n") + "\n"
+
+					// Append OmniFocus note content as body if it exists
+					if(omniFocusNoteContent){
+						noteContent += omniFocusNoteContent
+					}
+
+					// Create note using Local REST API
+					console.log("Creating note at:", filePath)
+					var createRequest = new URL.FetchRequest()
+					createRequest.url = URL.fromString(apiUrl + "/vault/" + encodeURIComponent(filePath))
+					createRequest.method = "PUT"
+					createRequest.headers = {
+						"Authorization": "Bearer " + apiKey,
+						"Content-Type": "text/markdown"
+					}
+					createRequest.bodyString = noteContent
+
+					var createResponse = await createRequest.fetch()
+					console.log("Note created successfully, status:", createResponse.statusCode)
+
+					// Open the newly created note in new tab (unless already open)
+					var encodedVaultTitle = encodeURIComponent(vaultTitle)
+					var encodedItemID = encodeURIComponent(itemID)
+					var openLink = `obsidian://advanced-uri?vault=${encodedVaultTitle}&uid=${encodedItemID}&newpane=true`
+
+					console.log("Opening new note")
+					console.log("Open link:", openLink)
+
+					URL.fromString(openLink).open()
+
+					// Add Obsidian link to OmniFocus note
+					var linkAlreadyExists = item.noteText.string.includes("(Obsidian Link)")
+
+					if(!linkAlreadyExists){
+						var encodedItemID = encodeURIComponent(itemID)
+						var obsidianLinkStr = `obsidian://advanced-uri?vault=${encodedVaultTitle}&uid=${encodedItemID}&newpane=true`
+
+						noteObj = item.noteText
+						linkURL = URL.fromString(obsidianLinkStr)
+						linkObj = new Text("(Obsidian Link)", noteObj.style)
+						style = linkObj.styleForRange(linkObj.range)
+						style.set(Style.Attribute.Link, linkURL)
+						noteObj.insert(noteObj.start, linkObj)
+						// Only add newline if note has existing content after the link
+						var currentNoteContent = noteObj.string
+						if(currentNoteContent && currentNoteContent.replace("(Obsidian Link)", "").trim().length > 0){
+							newLineObj = new Text("\n", noteObj.style)
+							noteObj.insert(linkObj.range.end, newLineObj)
+						}
+					}
+				}
+			}
+		}
+		catch(err){
+			if(errorID !== "A"){
+				console.log("Exception caught:", err.message)
+				new Alert(err.name, err.message).show()
+			}
+		}
+	});
+
+	action.validate = function(selection, sender){
+		return (
+			selection.databaseObjects.length === 1 &&
+			(selection.tasks.length === 1 || selection.projects.length === 1)
+		)
+	};
+
+	return action;
+})();

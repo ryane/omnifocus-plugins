@@ -41,16 +41,16 @@ If you use the **Templater** plugin, you must **disable it** for the folder wher
 
 From the repository root, run:
 ```bash
-just install obsidian-integration
+just install obsidian-note
 ```
 
 This will copy the plugin to your OmniFocus plugins directory. Restart OmniFocus or refresh plugins (Automation > Configure Plugins).
 
 ### Manual Install
 
-Copy `of-obsidian-open-or-create.omnifocusjs` to your OmniFocus plugins directory:
+Copy `obsidian-note.omnifocusjs` to your OmniFocus plugins directory:
 ```bash
-cp of-obsidian-open-or-create.omnifocusjs ~/Library/Containers/com.omnigroup.OmniFocus4/Data/Library/Application\ Support/Plug-Ins/
+cp obsidian-note.omnifocusjs ~/Library/Containers/com.omnigroup.OmniFocus4/Data/Library/Application\ Support/Plug-Ins/
 ```
 
 The plugin will appear in OmniFocus's Automation menu after reloading.
@@ -123,7 +123,7 @@ Your original OmniFocus note content appears here
 ### Workflow
 
 1. **Edit** the plugin in this directory
-2. **Install** from repo root: `just install obsidian-integration`
+2. **Install** from repo root: `just install obsidian-note`
 3. **Reload** plugins in OmniFocus (Automation > Configure Plugins, or restart)
 4. **Test** your changes
 

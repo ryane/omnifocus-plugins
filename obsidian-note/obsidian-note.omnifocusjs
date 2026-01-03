@@ -2,12 +2,12 @@
 	"type": "action",
 	"targets": ["omnifocus"],
 	"author": "Ryan Eschinger",
-	"identifier": "com.omni-automation.of.obsidian-open-or-create",
+	"identifier": "com.omni-automation.obsidian-note",
 	"version": "6.0",
 	"description": "Opens existing Obsidian note if one exists for the task/project (searching by ID using Local REST API), otherwise creates it with 'id', 'created', 'action', and 'tags' in frontmatter, and includes OmniFocus note content as body. Uses clean, readable filenames. Requires Obsidian Local REST API plugin (with HTTP mode enabled on port 27123) and OmniFocus 4. IMPORTANT: Disable Templater for the folder where these notes are stored.",
-	"label": "Open/Create in Obsidian",
-	"shortLabel": "Open/Create in Obsidian",
-	"paletteLabel": "Open/Create in Obsidian",
+	"label": "Obsidian Note",
+	"shortLabel": "Obsidian Note",
+	"paletteLabel": "Obsidian Note",
 	"image": "note.text.badge.plus"
 }*/
 (() => {

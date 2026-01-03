@@ -4,7 +4,7 @@ A collection of OmniFocus automation plugins using Omni Automation (JavaScript).
 
 ## Plugins
 
-### [Obsidian Integration](./obsidian-integration/)
+### [Obsidian Note](./obsidian-note/)
 
 Creates and opens Obsidian notes for OmniFocus tasks/projects with intelligent duplicate prevention and bi-directional linking.
 
@@ -19,7 +19,7 @@ Creates and opens Obsidian notes for OmniFocus tasks/projects with intelligent d
 - OmniFocus 4
 - Obsidian with Local REST API, Dataview, and Advanced URI plugins
 
-[View documentation →](./obsidian-integration/README.md)
+[View documentation →](./obsidian-note/README.md)
 
 ## Installation
 
@@ -27,7 +27,7 @@ Creates and opens Obsidian notes for OmniFocus tasks/projects with intelligent d
 
 Install a specific plugin:
 ```bash
-just install obsidian-integration
+just install obsidian-note
 ```
 
 Install all plugins:
@@ -75,7 +75,7 @@ This provides:
 ### Available Just Tasks
 
 - `just list` - Show all available plugins
-- `just install <plugin>` - Install a specific plugin (e.g., `just install obsidian-integration`)
+- `just install <plugin>` - Install a specific plugin (e.g., `just install obsidian-note`)
 - `just install-all` - Install all plugins in the repo
 - `just show-dir` - Show the OmniFocus plugins directory path
 - `just open-dir` - Open the OmniFocus plugins directory in Finder

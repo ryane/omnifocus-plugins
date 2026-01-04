@@ -142,6 +142,14 @@ Note: OmniFocus does not support symlinks in the plugins directory, so changes m
 - Rename-safe links using Advanced URI
 - Automatic tab management
 
+## Credits
+
+This plugin is based on the [OmniFocus Obsidian Plugin](https://omni-automation.com/omnifocus/plug-in-obsidian.html) from omni-automation.com, enhanced with:
+- ID-based search using Obsidian Local REST API
+- Duplicate note prevention
+- Rename-safe links via Advanced URI
+- Automatic tab management
+
 ## License
 
 MIT

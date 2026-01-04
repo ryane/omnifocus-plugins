@@ -11,6 +11,9 @@
 	"image": "note.text.badge.plus"
 }*/
 
+// Based on: https://omni-automation.com/omnifocus/plug-in-obsidian.html
+// Enhanced with ID-based search, REST API integration, and duplicate prevention
+
 (() => {
 	const preferences = new Preferences()
 

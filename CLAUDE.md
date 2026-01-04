@@ -157,6 +157,8 @@ item.noteText.insert(item.noteText.start, linkObj)
 
 Creates/opens Obsidian notes for OmniFocus tasks with ID-based search.
 
+**Original Source:** Based on the [OmniFocus Obsidian Plugin](https://omni-automation.com/omnifocus/plug-in-obsidian.html) from omni-automation.com, enhanced with REST API integration, duplicate prevention, and rename-safe linking.
+
 **Dependencies:**
 - Obsidian Local REST API plugin (HTTP mode on port 27123)
 - Obsidian Dataview plugin (for ID-based search)

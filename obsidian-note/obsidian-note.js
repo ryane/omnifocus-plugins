@@ -224,7 +224,7 @@
 					URL.fromString(openLink).open()
 
 					// Add Obsidian link to OmniFocus note
-					var linkAlreadyExists = item.noteText.string.includes("(Obsidian Link)")
+					var linkAlreadyExists = item.noteText.string.includes("(Obsidian Note)")
 
 					if(!linkAlreadyExists){
 						var encodedItemID = encodeURIComponent(itemID)
@@ -232,13 +232,13 @@
 
 						noteObj = item.noteText
 						linkURL = URL.fromString(obsidianLinkStr)
-						linkObj = new Text("(Obsidian Link)", noteObj.style)
+						linkObj = new Text("(Obsidian Note)", noteObj.style)
 						style = linkObj.styleForRange(linkObj.range)
 						style.set(Style.Attribute.Link, linkURL)
 						noteObj.insert(noteObj.start, linkObj)
 						// Only add newline if note has existing content after the link
 						var currentNoteContent = noteObj.string
-						if(currentNoteContent && currentNoteContent.replace("(Obsidian Link)", "").trim().length > 0){
+						if(currentNoteContent && currentNoteContent.replace("(Obsidian Note)", "").trim().length > 0){
 							newLineObj = new Text("\n", noteObj.style)
 							noteObj.insert(linkObj.range.end, newLineObj)
 						}

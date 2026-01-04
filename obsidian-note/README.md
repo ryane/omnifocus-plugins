@@ -9,7 +9,8 @@ An OmniFocus plugin that creates and opens Obsidian notes for tasks and projects
 - **Bi-directional Links**: Adds clickable links in OmniFocus notes that open the corresponding Obsidian note
 - **Rename-Safe Links**: Links use ID-based URIs, so they work even after renaming notes
 - **Automatic Tab Management**: Opens notes in new tabs (or focuses existing tab if already open)
-- **Rich Frontmatter**: Includes `id`, `created` date, OmniFocus `action` link, and optional `tags`
+- **Rich Frontmatter**: Includes `id`, `created` date, OmniFocus `action` link, `project` wiki-link, and optional `tags`
+- **Project Integration**: Automatically links to project notes using Obsidian wiki-links
 - **Note Content Preservation**: Includes OmniFocus note content as initial body of Obsidian note
 
 ## Requirements
@@ -85,10 +86,14 @@ Created notes use this format:
 id: kFe8Z2xKrQp
 created: 2026-01-02
 action: omnifocus:///task/kFe8Z2xKrQp
+project: "[[My Project Name]]"
+project_link: omnifocus:///project/abc123xyz
 tags: ["work", "important"]
 ---
 Your original OmniFocus note content appears here
 ```
+
+**Note:** The `project` and `project_link` fields are only included if the task belongs to a project (inbox tasks won't have these fields).
 
 ## How It Works
 
@@ -135,6 +140,11 @@ Note: OmniFocus does not support symlinks in the plugins directory, so changes m
 - View output in OmniFocus's plugin console (Automation > Configure Plugins > [Plugin Name] > Console)
 
 ## Version History
+
+### 6.1 (2026-01-03)
+- Added project integration with Obsidian wiki-links
+- Includes `project: "[[Project Name]]"` and `project_link` in frontmatter
+- Enables bi-directional linking between task and project notes
 
 ### 6.0 (2026-01-02)
 - Initial release with REST API integration

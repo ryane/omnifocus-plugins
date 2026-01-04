@@ -3,8 +3,8 @@
 	"targets": ["omnifocus"],
 	"author": "Ryan Eschinger",
 	"identifier": "com.omni-automation.obsidian-note",
-	"version": "6.0",
-	"description": "Opens existing Obsidian note if one exists for the task/project (searching by ID using Local REST API), otherwise creates it with 'id', 'created', 'action', and 'tags' in frontmatter, and includes OmniFocus note content as body. Uses clean, readable filenames. Requires Obsidian Local REST API plugin (with HTTP mode enabled on port 27123) and OmniFocus 4. IMPORTANT: Disable Templater for the folder where these notes are stored.",
+	"version": "6.1",
+	"description": "Opens existing Obsidian note if one exists for the task/project (searching by ID using Local REST API), otherwise creates it with 'id', 'created', 'action', 'project' (with wiki-link), and 'tags' in frontmatter, and includes OmniFocus note content as body. Uses clean, readable filenames. Requires Obsidian Local REST API plugin (with HTTP mode enabled on port 27123) and OmniFocus 4. IMPORTANT: Disable Templater for the folder where these notes are stored.",
 	"label": "Obsidian Note",
 	"shortLabel": "Obsidian Note",
 	"paletteLabel": "Obsidian Note",
@@ -186,6 +186,16 @@
 
 					// Build full content with frontmatter
 					var frontmatterLines = [`---`, `id: ${itemID}`, `created: ${createdDate}`, `action: ${itemLink}`]
+
+					// Add project information if task belongs to a project
+					if(item.containingProject){
+						var projectName = item.containingProject.name
+						var projectID = item.containingProject.id.primaryKey
+						var projectLink = `omnifocus:///project/${projectID}`
+						frontmatterLines.push(`project: "[[${projectName}]]"`)
+						frontmatterLines.push(`project_link: ${projectLink}`)
+					}
+
 					if(shouldIncludeTags && item.tags.length > 0){
 						tagTitles = item.tags.map(tag => tag.name)
 						tagArray = JSON.stringify(tagTitles)

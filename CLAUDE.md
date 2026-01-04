@@ -11,7 +11,7 @@ This repository contains OmniFocus automation plugins written in JavaScript usin
 ```
 omnifocus-plugins/
 ├── obsidian-note/              # Plugin: Create/open Obsidian notes for OmniFocus tasks
-│   ├── obsidian-note.omnifocusjs
+│   ├── obsidian-note.js        # Plugin source (stored as .js for editor support)
 │   └── README.md
 ├── justfile                    # Task runner for plugin installation
 ├── flake.nix                   # Nix development environment
@@ -23,8 +23,10 @@ omnifocus-plugins/
 ## Plugin Structure
 
 Each plugin is a directory containing:
-- `<name>.omnifocusjs` - The plugin script (JavaScript with JSON metadata header)
+- `<name>.js` - The plugin script (JavaScript with JSON metadata header)
 - `README.md` - Plugin-specific documentation
+
+**Important:** Plugins are stored as `.js` files in the repository for proper editor integration (syntax highlighting, LSP, etc.), but OmniFocus requires the `.omnifocusjs` extension. The justfile automatically renames files during installation.
 
 ### Plugin File Format
 
@@ -188,7 +190,8 @@ Parse as: `resultJSON[0].result["file.path"]`
 ## Naming Conventions
 
 - **Directory names:** `kebab-case` (e.g., `obsidian-note`)
-- **Plugin filenames:** `kebab-case.omnifocusjs` (e.g., `obsidian-note.omnifocusjs`)
+- **Plugin filenames in repo:** `kebab-case.js` (e.g., `obsidian-note.js`) - stored as `.js` for editor support
+- **Plugin filenames when installed:** `kebab-case.omnifocusjs` (e.g., `obsidian-note.omnifocusjs`) - required by OmniFocus
 - **Plugin identifiers:** `com.omni-automation.<plugin-name>` (e.g., `com.omni-automation.obsidian-note`)
 - **Labels:** Human-readable (e.g., "Obsidian Note")
 
@@ -225,10 +228,10 @@ This repository uses **Jujutsu (jj)** for version control, not Git. Let the user
 ## Adding New Plugins
 
 1. Create new directory: `<plugin-name>/`
-2. Create plugin file: `<plugin-name>/<plugin-name>.omnifocusjs`
+2. Create plugin file: `<plugin-name>/<plugin-name>.js` (stored as `.js` for editor support)
 3. Create README: `<plugin-name>/README.md`
 4. Update main `README.md` with plugin entry
-5. Test with `just install <plugin-name>`
+5. Test with `just install <plugin-name>` (automatically renames to `.omnifocusjs`)
 6. Document in plugin's README:
    - Features
    - Requirements/dependencies

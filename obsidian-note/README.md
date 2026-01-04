@@ -48,9 +48,9 @@ This will copy the plugin to your OmniFocus plugins directory. Restart OmniFocus
 
 ### Manual Install
 
-Copy `obsidian-note.omnifocusjs` to your OmniFocus plugins directory:
+Copy the plugin to your OmniFocus plugins directory (rename from `.js` to `.omnifocusjs`):
 ```bash
-cp obsidian-note.omnifocusjs ~/Library/Containers/com.omnigroup.OmniFocus4/Data/Library/Application\ Support/Plug-Ins/
+cp obsidian-note.js ~/Library/Containers/com.omnigroup.OmniFocus4/Data/Library/Application\ Support/Plug-Ins/obsidian-note.omnifocusjs
 ```
 
 The plugin will appear in OmniFocus's Automation menu after reloading.

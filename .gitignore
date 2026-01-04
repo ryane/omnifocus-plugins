@@ -12,4 +12,4 @@ result-*
 .direnv/
 
 # Test plugins
-**/test-*.omnifocusjs
+**/test-*.js

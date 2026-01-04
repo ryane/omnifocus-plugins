@@ -43,15 +43,17 @@ just list
 ### Manual Install
 
 Each plugin directory contains:
-- `.omnifocusjs` file - The plugin script
+- `.js` file - The plugin script (stored as `.js` for editor support)
 - `README.md` - Plugin-specific documentation
 
-To install manually, copy the `.omnifocusjs` file to:
+To install manually, copy the `.js` file and rename it to `.omnifocusjs`:
 ```bash
-~/Library/Containers/com.omnigroup.OmniFocus4/Data/Library/Application Support/Plug-Ins/
+cp <plugin-dir>/<plugin-name>.js ~/Library/Containers/com.omnigroup.OmniFocus4/Data/Library/Application\ Support/Plug-Ins/<plugin-name>.omnifocusjs
 ```
 
 The plugin will appear in OmniFocus's Automation menu after reloading.
+
+**Note:** Plugins are stored as `.js` files in the repository for editor integration support, but must be renamed to `.omnifocusjs` when installed to OmniFocus. The `just install` command handles this automatically.
 
 ## Development
 

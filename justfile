@@ -6,15 +6,15 @@ plugins_dir := env_var('HOME') + "/Library/Containers/com.omnigroup.OmniFocus4/D
 # List all available plugins
 list:
     @echo "Available plugins:"
-    @find . -maxdepth 2 -name "*.omnifocusjs" -not -name "test-*" | sed 's|^\./||' | sed 's|/.*||' | sort -u
+    @find . -maxdepth 2 -name "*.js" -not -name "test-*" | sed 's|^\./||' | sed 's|/.*||' | sort -u
 
-# Install a specific plugin (usage: just install obsidian-integration)
+# Install a specific plugin (usage: just install obsidian-note)
 install plugin:
     #!/bin/bash
     set -euo pipefail
 
-    # Find the plugin file
-    PLUGIN_FILE=$(find {{plugin}} -name "*.omnifocusjs" -not -name "test-*" | head -n 1)
+    # Find the plugin file (.js in repo)
+    PLUGIN_FILE=$(find {{plugin}} -name "*.js" -not -name "test-*" | head -n 1)
 
     if [ -z "$PLUGIN_FILE" ]; then
         echo "Error: No plugin file found in {{plugin}}/"
@@ -24,9 +24,13 @@ install plugin:
     # Create plugins directory if it doesn't exist
     mkdir -p "{{plugins_dir}}"
 
-    # Copy plugin
-    echo "Installing $PLUGIN_FILE..."
-    cp "$PLUGIN_FILE" "{{plugins_dir}}/"
+    # Get basename and change extension from .js to .omnifocusjs
+    BASENAME=$(basename "$PLUGIN_FILE" .js)
+    DEST_FILE="{{plugins_dir}}/${BASENAME}.omnifocusjs"
+
+    # Copy plugin with renamed extension
+    echo "Installing $PLUGIN_FILE → ${BASENAME}.omnifocusjs..."
+    cp "$PLUGIN_FILE" "$DEST_FILE"
 
     echo "✓ Plugin installed successfully"
     echo ""
@@ -42,8 +46,8 @@ install-all:
     echo "Installing all plugins..."
     echo ""
 
-    # Find all plugin files (excluding test files)
-    PLUGIN_FILES=$(find . -maxdepth 2 -name "*.omnifocusjs" -not -name "test-*")
+    # Find all plugin files (excluding test files, .js in repo)
+    PLUGIN_FILES=$(find . -maxdepth 2 -name "*.js" -not -name "test-*")
 
     if [ -z "$PLUGIN_FILES" ]; then
         echo "No plugin files found"
@@ -56,9 +60,10 @@ install-all:
     # Install each plugin
     COUNT=0
     for PLUGIN_FILE in $PLUGIN_FILES; do
-        BASENAME=$(basename "$PLUGIN_FILE")
-        echo "  → Installing $BASENAME"
-        cp "$PLUGIN_FILE" "{{plugins_dir}}/"
+        BASENAME=$(basename "$PLUGIN_FILE" .js)
+        DEST_FILE="{{plugins_dir}}/${BASENAME}.omnifocusjs"
+        echo "  → Installing ${BASENAME}.js → ${BASENAME}.omnifocusjs"
+        cp "$PLUGIN_FILE" "$DEST_FILE"
         COUNT=$((COUNT + 1))
     done
 

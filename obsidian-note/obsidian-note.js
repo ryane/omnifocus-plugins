@@ -10,6 +10,7 @@
 	"paletteLabel": "Obsidian Note",
 	"image": "note.text.badge.plus"
 }*/
+
 (() => {
 	const preferences = new Preferences()
 

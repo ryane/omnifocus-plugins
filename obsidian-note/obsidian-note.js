@@ -3,7 +3,7 @@
 	"targets": ["omnifocus"],
 	"author": "Ryan Eschinger",
 	"identifier": "com.omni-automation.obsidian-note",
-	"version": "6.1",
+	"version": "6.3",
 	"description": "Opens existing Obsidian note if one exists for the task/project (searching by ID using Local REST API), otherwise creates it with 'id', 'created', 'action', 'project' (with wiki-link), and 'tags' in frontmatter, and includes OmniFocus note content as body. Uses clean, readable filenames. Requires Obsidian Local REST API plugin (with HTTP mode enabled on port 27123) and OmniFocus 4. IMPORTANT: Disable Templater for the folder where these notes are stored.",
 	"label": "Obsidian Note",
 	"shortLabel": "Obsidian Note",
@@ -129,14 +129,23 @@
 				request.method = "POST"
 				request.headers = {
 					"Authorization": "Bearer " + apiKey,
-					"Content-Type": "application/vnd.olrapi.dataview.dql+txt"
+					"Content-Type": "application/vnd.olrapi.jsonlogic+json"
 				}
-				request.bodyString = `TABLE file.path FROM "" WHERE id = "${itemID}"`
+				request.bodyString = JSON.stringify({
+					"==": [{"var": "frontmatter.id"}, itemID]
+				})
 
 				console.log("Sending search request...")
 				var searchResponse = await request.fetch()
 
 				console.log("Search completed, status:", searchResponse.statusCode)
+
+				if(searchResponse.statusCode < 200 || searchResponse.statusCode >= 300){
+					throw {
+						name: "Search Failed (HTTP " + searchResponse.statusCode + ")",
+						message: "Local REST API rejected the search request.\n\n" + searchResponse.bodyString
+					}
+				}
 
 				// Parse search results
 				var resultText = searchResponse.bodyString
@@ -146,14 +155,10 @@
 
 				try {
 					var resultJSON = JSON.parse(resultText)
-					// Check if we have results
-					// Result format: [{"filename": "...", "result": {"file.path": "..."}}]
-					if(Array.isArray(resultJSON) && resultJSON.length > 0){
-						var firstResult = resultJSON[0]
-						if(firstResult.result && firstResult.result["file.path"]){
-							existingFilePath = firstResult.result["file.path"]
-							console.log("Found existing note at:", existingFilePath)
-						}
+					// Result format: [{"filename": "path/to/file.md", "result": true}]
+					if(Array.isArray(resultJSON) && resultJSON.length > 0 && resultJSON[0].filename){
+						existingFilePath = resultJSON[0].filename
+						console.log("Found existing note at:", existingFilePath)
 					}
 				} catch(parseErr) {
 					console.log("Could not parse search results:", parseErr.message)
@@ -221,7 +226,14 @@
 					createRequest.bodyString = noteContent
 
 					var createResponse = await createRequest.fetch()
-					console.log("Note created successfully, status:", createResponse.statusCode)
+					console.log("Create completed, status:", createResponse.statusCode)
+
+					if(createResponse.statusCode < 200 || createResponse.statusCode >= 300){
+						throw {
+							name: "Note Creation Failed (HTTP " + createResponse.statusCode + ")",
+							message: "Local REST API rejected the create request.\n\n" + createResponse.bodyString
+						}
+					}
 
 					// Open the newly created note in new tab (unless already open)
 					var encodedVaultTitle = encodeURIComponent(vaultTitle)

@@ -24,11 +24,7 @@ An OmniFocus plugin that creates and opens Obsidian notes for tasks and projects
    - Enable **HTTP mode** (non-secure) on port **27123**
    - Copy your API key (found in Settings > Local REST API)
 
-2. **[Dataview](https://github.com/blacksmithgu/obsidian-dataview)**
-   - Install and enable in Obsidian
-   - Required for ID-based search functionality
-
-3. **[Advanced URI](https://github.com/Vinzent03/obsidian-advanced-uri)**
+2. **[Advanced URI](https://github.com/Vinzent03/obsidian-advanced-uri)**
    - Install and enable in Obsidian
    - Set "UID field name" to `id` in plugin settings
 
@@ -98,7 +94,7 @@ Your original OmniFocus note content appears here
 ## How It Works
 
 1. **ID-based Search**: Uses the Obsidian Local REST API to search for notes by frontmatter `id` field
-2. **Dataview Query**: Executes `TABLE file.path FROM "" WHERE id = "<task-id>"` to find existing notes
+2. **JsonLogic Query**: Sends `{"==": [{"var": "frontmatter.id"}, "<task-id>"]}` to the REST API's `/search/` endpoint to find existing notes
 3. **Smart Opening**: Uses Advanced URI plugin with `uid` parameter to open notes by ID (not filepath)
 4. **Link Persistence**: Links stored in OmniFocus work even after renaming the Obsidian note
 
@@ -113,7 +109,6 @@ Your original OmniFocus note content appears here
 - Verify API key is correct
 
 ### Duplicate Notes Created
-- Ensure Dataview plugin is installed and enabled
 - Check that frontmatter `id` field exists in your notes
 
 ### Malformed Frontmatter
@@ -140,6 +135,11 @@ Note: OmniFocus does not support symlinks in the plugins directory, so changes m
 - View output in OmniFocus's plugin console (Automation > Configure Plugins > [Plugin Name] > Console)
 
 ## Version History
+
+### 6.3 (2026-04-27)
+- Switched search from Dataview DQL to Local REST API JsonLogic
+- Removed Dataview as a required Obsidian plugin dependency
+- Added HTTP status checks on search and create requests so REST API failures surface as alerts instead of silently focusing Obsidian with no note
 
 ### 6.1 (2026-01-03)
 - Added project integration with Obsidian wiki-links

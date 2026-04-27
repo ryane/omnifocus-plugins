@@ -161,12 +161,11 @@ Creates/opens Obsidian notes for OmniFocus tasks with ID-based search.
 
 **Dependencies:**
 - Obsidian Local REST API plugin (HTTP mode on port 27123)
-- Obsidian Dataview plugin (for ID-based search)
 - Obsidian Advanced URI plugin (for UID-based opening)
 
 **How it works:**
 1. Uses Local REST API to search for existing notes by frontmatter `id` field
-2. Dataview query: `TABLE file.path FROM "" WHERE id = "<task-id>"`
+2. JsonLogic query: `{"==": [{"var": "frontmatter.id"}, "<task-id>"]}` (Content-Type: `application/vnd.olrapi.jsonlogic+json`)
 3. If found: Opens via Advanced URI (`obsidian://advanced-uri?vault=...&uid=...&newpane=true`)
 4. If not found: Creates note via REST API PUT request, then opens it
 5. Adds clickable link to OmniFocus note
@@ -176,14 +175,12 @@ Creates/opens Obsidian notes for OmniFocus tasks with ID-based search.
 [
   {
     "filename": "path/to/file.md",
-    "result": {
-      "file.path": "path/to/file.md"
-    }
+    "result": true
   }
 ]
 ```
 
-Parse as: `resultJSON[0].result["file.path"]`
+Parse as: `resultJSON[0].filename`
 
 **Critical settings:**
 - Advanced URI "UID field name": Must be set to `id`
